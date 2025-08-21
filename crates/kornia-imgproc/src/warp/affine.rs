@@ -294,4 +294,46 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn warp_affine_bicubic_smoke() -> Result<(), ImageError> {
+        let image = Image::<_, 1, _>::new(
+            ImageSize {
+                width: 4,
+                height: 4,
+            },
+            vec![
+                0.0, 1.0, 2.0, 3.0,
+                4.0, 5.0, 6.0, 7.0,
+                8.0, 9.0, 10.0, 11.0,
+                12.0, 13.0, 14.0, 15.0,
+            ],
+            CpuAllocator,
+        )?;
+
+        let new_size = ImageSize {
+            width: 3,
+            height: 3,
+        };
+
+        let mut image_transformed = Image::<_, 1, _>::from_size_val(new_size, 0.0, CpuAllocator)?;
+
+        super::warp_affine(
+            &image,
+            &mut image_transformed,
+            &[1.0, 0.0, 0.0, 0.0, 1.0, 0.0], // identity transformation
+            super::InterpolationMode::Bicubic,
+        )?;
+
+        assert_eq!(image_transformed.num_channels(), 1);
+        assert_eq!(image_transformed.size().width, 3);
+        assert_eq!(image_transformed.size().height, 3);
+
+        // Values should be reasonable (no extreme outliers from bicubic interpolation)
+        for pixel in image_transformed.as_slice() {
+            assert!(*pixel >= 0.0 && *pixel <= 15.0);
+        }
+
+        Ok(())
+    }
 }

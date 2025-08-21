@@ -17,6 +17,7 @@ pub fn resize(image: PyImage, new_size: (usize, usize), interpolation: &str) -> 
     let interpolation = match interpolation.to_lowercase().as_str() {
         "nearest" => InterpolationMode::Nearest,
         "bilinear" => InterpolationMode::Bilinear,
+        "bicubic" => InterpolationMode::Bicubic,
         _ => {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
                 "Invalid interpolation mode",

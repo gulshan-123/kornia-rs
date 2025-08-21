@@ -26,6 +26,7 @@ pub fn warp_affine(
     let interpolation = match interpolation.to_lowercase().as_str() {
         "nearest" => InterpolationMode::Nearest,
         "bilinear" => InterpolationMode::Bilinear,
+        "bicubic" => InterpolationMode::Bicubic,
         _ => {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
                 "Invalid interpolation mode",
@@ -44,7 +45,7 @@ pub fn warp_affine(
     warp::warp_affine(&image, &mut image_warped, &m, interpolation)
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyException, _>(format!("{}", e)))?;
 
-    // NOTE: for bicubic interpolation (not implemented yet), f32 may overshoot 255
+    // NOTE: for bicubic interpolation, f32 may overshoot 255
     let image_warped = image_warped
         .cast::<u8>()
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyException, _>(format!("{}", e)))?;
@@ -70,6 +71,7 @@ pub fn warp_perspective(
     let interpolation = match interpolation.to_lowercase().as_str() {
         "nearest" => InterpolationMode::Nearest,
         "bilinear" => InterpolationMode::Bilinear,
+        "bicubic" => InterpolationMode::Bicubic,
         _ => {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
                 "Invalid interpolation mode",
